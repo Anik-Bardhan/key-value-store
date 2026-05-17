@@ -87,6 +87,47 @@ int ht_set(hashtable_t *ht, const char *key, const char *value) {
     return 0;
 }
 
+const char *ht_get(const hashtable_t *ht, const char *key) {
+    if (ht == NULL || key == NULL) {
+        return NULL;
+    }
+    uint64_t index = fnv1a_hash64(key, strlen(key)) % ht->capacity;
+    entry_t *cur = ht->buckets[index];
+    while (cur != NULL) {
+        if (strcmp(cur->key, key) == 0) {
+            return cur->value;
+        }
+        cur = cur->next;
+    }
+    return NULL;
+}
+
+int ht_delete(hashtable_t *ht, const char *key) {
+    if (ht == NULL || key == NULL) {
+        return -1;
+    }
+    uint64_t index = fnv1a_hash64(key, strlen(key)) % ht->capacity;
+    entry_t *prev = NULL;
+    entry_t *cur = ht->buckets[index];
+    while (cur != NULL) {
+        if (strcmp(cur->key, key) == 0) {
+            if (prev == NULL) {
+                ht->buckets[index] = cur->next;
+            } else {
+                prev->next = cur->next;
+            }
+            free(cur->key);
+            free(cur->value);
+            free(cur);
+            ht->size--;
+            return 0;
+        }
+        prev = cur;
+        cur = cur->next;
+    }
+    return -1;
+}
+
 size_t ht_size(const hashtable_t *ht) {
     if (ht == NULL) {
         return 0;

@@ -8,6 +8,7 @@ int main(void) {
     ht_set(ht, "foo", "bar");
     ht_set(ht, "hello", "world");
     ht_set(ht, "foo", "BAZ");
+    ht_delete(ht, "foo");
     ht_destroy(ht);
     return 0;
 }
