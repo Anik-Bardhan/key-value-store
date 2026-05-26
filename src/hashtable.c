@@ -4,6 +4,7 @@
 #include <string.h>
 
 static uint64_t fnv1a_hash64(const void *data, size_t len);
+static void check_and_assign_new_bucket(hashtable_t *ht);
 
 typedef struct entry {
     char *key;
@@ -54,6 +55,7 @@ int ht_set(hashtable_t *ht, const char *key, const char *value) {
     if (ht == NULL) {
         return -1;
     }
+    check_and_assign_new_bucket(ht);
     uint64_t index = fnv1a_hash64(key, strlen(key)) % ht->capacity;
     entry_t *cur = ht->buckets[index];
     while (cur != NULL) {
@@ -135,6 +137,31 @@ size_t ht_size(const hashtable_t *ht) {
     return ht->size;
 }
 
+char **ht_keys(const hashtable_t *ht) {
+    if (ht == NULL || ht->size == 0) {
+        return NULL;
+    }
+    char **keys = malloc(ht->size * sizeof(char *));
+    if (keys == NULL) {
+        return NULL;
+    }
+    size_t index = 0;
+    for (size_t i = 0; i < ht->capacity; i++) {
+        const entry_t *cur = ht->buckets[i];
+        while (cur != NULL) {
+            keys[index] = strdup(cur->key);
+            if (keys[index] == NULL) {
+                for (size_t j = 0; j < index; j++) free(keys[j]);
+                free(keys);
+                return NULL;
+            }
+            index++;
+            cur = cur->next;
+        }
+    }
+    return keys;
+}
+
 static uint64_t fnv1a_hash64(const void *data, size_t len) {
     const uint8_t *bytes = (const uint8_t *)data;
     uint64_t hash = 14695981039346656037ull;  // FNV offset basis
@@ -143,4 +170,27 @@ static uint64_t fnv1a_hash64(const void *data, size_t len) {
         hash *= 1099511628211ull;              // FNV prime
     }
     return hash;
+}
+
+static void check_and_assign_new_bucket(hashtable_t *ht) {
+    if ((double) ht->size / (double) ht->capacity > 0.75) {
+        size_t new_capacity = ht->capacity * 2;
+        entry_t **new_buckets = calloc(new_capacity, sizeof(entry_t *));
+        if (new_buckets == NULL) {
+            return;
+        }
+        for (size_t i = 0; i < ht->capacity; i++) {
+            entry_t *cur = ht->buckets[i];
+            while (cur != NULL) {
+                entry_t *next = cur->next;
+                size_t new_index = fnv1a_hash64(cur->key, strlen(cur->key)) % new_capacity;
+                cur->next = new_buckets[new_index];
+                new_buckets[new_index] = cur;
+                cur = next;
+            }
+        }
+        free(ht->buckets);
+        ht->capacity = new_capacity;
+        ht->buckets = new_buckets;
+    }
 }

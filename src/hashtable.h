@@ -11,5 +11,6 @@ int ht_set(hashtable_t *ht, const char *key, const char *value);
 const char *ht_get(const hashtable_t *ht, const char *key);
 int ht_delete(hashtable_t *ht, const char *key);
 size_t ht_size(const hashtable_t *ht);
+char **ht_keys(const hashtable_t *ht);
 
 #endif
