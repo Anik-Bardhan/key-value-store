@@ -52,7 +52,7 @@ void ht_destroy(hashtable_t *ht) {
 }
 
 int ht_set(hashtable_t *ht, const char *key, const char *value) {
-    if (ht == NULL) {
+    if (ht == NULL || key == NULL || value == NULL) {
         return -1;
     }
     check_and_assign_new_bucket(ht);

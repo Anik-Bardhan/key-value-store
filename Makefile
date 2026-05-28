@@ -5,3 +5,6 @@ kvstore: src/main.c src/hashtable.c src/hashtable.h
 
 clean:
 	rm -f kvstore
+
+run: kvstore
+	ASAN_OPTIONS=detect_leaks=0 ./kvstore
