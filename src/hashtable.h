@@ -12,5 +12,6 @@ const char *ht_get(const hashtable_t *ht, const char *key);
 int ht_delete(hashtable_t *ht, const char *key);
 size_t ht_size(const hashtable_t *ht);
 char **ht_keys(const hashtable_t *ht);
+size_t ht_capacity(hashtable_t *ht);
 
 #endif

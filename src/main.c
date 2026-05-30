@@ -49,7 +49,7 @@ static int parse(hashtable_t *ht, char *input) {
             return 1;
         }
         const char *value = ht_get(ht, key);
-        printf("%s\n", value ? value : "nil");
+        printf("%s\n", value ? value : "(nil)");
         return 0;
     }
     if (strcmp(command, "del") == 0) {

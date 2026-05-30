@@ -162,6 +162,13 @@ char **ht_keys(const hashtable_t *ht) {
     return keys;
 }
 
+size_t ht_capacity(hashtable_t *ht) {
+    if (ht == NULL) {
+        return 0;
+    }
+    return ht->capacity;
+}
+
 static uint64_t fnv1a_hash64(const void *data, size_t len) {
     const uint8_t *bytes = (const uint8_t *)data;
     uint64_t hash = 14695981039346656037ull;  // FNV offset basis
